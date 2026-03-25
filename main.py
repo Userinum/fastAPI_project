@@ -9,7 +9,7 @@ Base.metadata.create_all(bind=eng)
 
 @app.post("/register")
 def register(name: str, password: str, db: Session = Depends(get_db)):
-    user = User(name=name, password=h(password))
+    user = User(name=name, password=hash_password(password))
     db.add(user)
     db.commit()
     return {"Все прошло четко!": 1}
@@ -17,7 +17,7 @@ def register(name: str, password: str, db: Session = Depends(get_db)):
 @app.post("/login")
 def login(name: str, password: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.name == name).first()
-    if not user or not v(password, user.password):
+    if not user or not verify_password(password, user.password):
         raise HTTPException(status_code=401)
     return {"token": create_token({"id": user.id})}
 
