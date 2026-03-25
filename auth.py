@@ -3,23 +3,23 @@ from fastapi import HTTPException
 import hashlib
 import secrets
 
-SECRET = "secret123"
-ALG = "HS256"
+SECRET_KEY = "secret123"
+ALGORITHM = "HS256"
 
-def h(p):
+def hash_password(password):
     s = secrets.token_hex(16)
-    return s + ":" + hashlib.sha256((p + s).encode()).hexdigest()
+    return s + ":" + hashlib.sha256((password + s).encode()).hexdigest()
 
-def v(p, hp):
-    s, hash_val = hp.split(":")
-    return hash_val == hashlib.sha256((p + s).encode()).hexdigest()
+def verify_password(password, hashed_password):
+    s, hash_value = hashed_password.split(":")
+    return hash_value == hashlib.sha256((password + s).encode()).hexdigest()
 
-def tok(data):
-    return jwt.encode(data, SECRET, algorithm=ALG)
+def create_token(data):
+    return jwt.encode(data, SECRET_KEY, algorithm=ALGORITHM)
 
-def get_u(token, db, User):
+def get_current_user(token, db, User):
     try:
-        d = jwt.decode(token, SECRET, algorithms=[ALG])
-        return db.query(User).filter(User.id == d["id"]).first()
+        decoded = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return db.query(User).filter(User.id == decoded["id"]).first()
     except:
-        raise HTTPException(status_code=401, detail="bad token")
+        raise HTTPException(status_code=401, detail="Invalid token")
