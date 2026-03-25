@@ -8,7 +8,7 @@ ALG = "HS256"
 
 def h(p):
     s = secrets.token_hex(16)
-    return s + ":" + hashlib.sha256((p + s).encode()).hexdigest
+    return s + ":" + hashlib.sha256((p + s).encode()).hexdigest()
 
 def v(p, hp):
     s, hash_val = hp.split(":")
