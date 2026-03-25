@@ -1,23 +1,18 @@
 from jose import jwt
-from passlib.context import CryptContext
 from fastapi import HTTPException
 import hashlib
+import secrets
 
 SECRET = "secret123"
 ALG = "HS256"
 
-pwd = CryptContext(schemes=["bcrypt"])
-
 def h(p):
-    p = hashlib.sha256(p.encode()).hexdigest()
-    return pwd.hash(p)
+    s = secrets.token_hex(16)
+    return s + ":" + hashlib.sha256((p + s).encode()).hexdigest
 
 def v(p, hp):
-    p = hashlib.sha256(p.encode()).hexdigest()
-    try:
-        return pwd.verify(p, hp)
-    except:
-        pwd.verify(p[:72], hp)
+    s, hash_val = hp.split(":")
+    return hash_val == hashlib.sha256((p + s).encode()).hexdigest()
 
 def tok(data):
     return jwt.encode(data, SECRET, algorithm=ALG)
