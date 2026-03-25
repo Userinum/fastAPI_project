@@ -3,6 +3,7 @@ from passlib.context import CryptContext
 from fastapi import HTTPException
 from models import User
 from database import SessionLocal
+import hashlib
 
 SECRET_KEY = "secret123"
 ALGORITHM = "HS256"
@@ -10,9 +11,11 @@ ALGORITHM = "HS256"
 pwd_context = CryptContext(schemes=["bcrypt"])
 
 def hash_password(password):
+    password = hashlib.sha256(password.encode()).hexdigest()
     return pwd_context.hash(password)
 
 def verify_password(password, hashed):
+    password = hashlib.sha256(password.encode()).hexdigest()
     return pwd_context.verify(password, hashed)
 
 def create_token(data: dict):
