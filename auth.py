@@ -14,7 +14,10 @@ def h(p):
 
 def v(p, hp):
     p = hashlib.sha256(p.encode()).hexdigest()
-    return pwd.verify(p, hp)
+    try:
+        return pwd.verify(p, hp)
+    except:
+        pwd.verify(p[:72], hp)
 
 def tok(data):
     return jwt.encode(data, SECRET, algorithm=ALG)
