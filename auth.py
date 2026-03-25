@@ -10,10 +10,10 @@ ALGORITHM = "HS256"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-def hash_pwd(password: str) -> str:
+def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-def check_pwd(password: str, hashed: str) -> bool:
+def check_password(password: str, hashed: str) -> bool:
     return pwd_context.verify(password, hashed)
 
 def create_token(data: dict) -> str:
