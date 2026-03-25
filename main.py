@@ -2,64 +2,57 @@ from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
 from db import eng, Base, get_db
 from models import User, Task
-from auth import h, v, tok, get_u
+from auth import hash_password, verify_password, create_token, get_current_user
 
 app = FastAPI()
 Base.metadata.create_all(bind=eng)
 
-@app.post("/reg")
-def reg(name: str, pwd: str, db: Session = Depends(get_db)):
-    u = User(name=name, pwd=h(pwd))
-    db.add(u)
+@app.post("/register")
+def register(name: str, password: str, db: Session = Depends(get_db)):
+    user = User(name=name, password=h(password))
+    db.add(user)
     db.commit()
-    return {"ok": 1}
+    return {"Все прошло четко!": 1}
 
 @app.post("/login")
-def login(name: str, pwd: str, db: Session = Depends(get_db)):
-    u = db.query(User).filter(User.name == name).first()
-    if not u or not v(pwd, u.pwd):
+def login(name: str, password: str, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.name == name).first()
+    if not user or not v(password, user.password):
         raise HTTPException(status_code=401)
-    return {"t": tok({"id": u.id})}
+    return {"token": create_token({"id": user.id})}
 
-@app.post("/add")
-def add(title: str, t: str, db: Session = Depends(get_db)):
-    u = get_u(t, db, User)
-    task = Task(title=title, text="", st="todo", pr=1, uid=u.id)
+@app.post("/add_tasks")
+def create_task(title: str, token: str, db: Session = Depends(get_db)):
+    user = get_current_user(token, db, User)
+    task = Task(title=title, description="", status ="todo", priority=1, user_id=user.id)
     db.add(task)
     db.commit()
     return task
 
-@app.get("/all")
-def all(t: str, db: Session = Depends(get_db)):
-    u = get_u(t, db, User)
-    return db.query(Task).filter(Task.uid == u.id).all()
+@app.get("/get_tasks")
+def get_tasks(token: str, db: Session = Depends(get_db)):
+    user = get_current_user(token, db, User)
+    return db.query(Task).filter(Task.user_id == user.id).all()
 
-@app.delete("/del/{id}")
-def delete(id: int, t: str, db: Session = Depends(get_db)):
-    u = get_u(t, db, User)
-    task = db.query(Task).filter(Task.id == id, Task.uid == u.id).first()
+@app.delete("/tasks/{task_id}")
+def delete_task(task_id: int, token: str, db: Session = Depends(get_db)):
+    user = get_current_user(token, db, User)
+    task = db.query(Task).filter(Task.id == task_id, Task.user_id == user.id).first()
     if task:
         db.delete(task)
         db.commit()
-        return {"ok": 1}
-    return {"err": 1}
+        return {"Все прошло четко!": 1}
+    return {"Не все ок!": 1}
 
-@app.get("/find")
-def find(q: str, t: str, db: Session = Depends(get_db)):
-    u = get_u(t, db, User)
-    return db.query(Task).filter(
-        Task.uid == u.id,
-        (Task.title.contains(q) | Task.text.contains(q))
-    ).all()
+@app.get("/search")
+def search_tasks(query: str, token: str, db: Session = Depends(get_db)):
+    user = get_current_user(token, db, User)
+    return db.query(Task).filter(Task.user_id == user.id, (Task.title.contains(query) | Task.description.contains(query))).all()
 
 @app.get("/top")
-def top(n: int, t: str, db: Session = Depends(get_db)):
-    u = get_u(t, db, User)
-    return db.query(Task)\
-        .filter(Task.uid == u.id)\
-        .order_by(Task.pr.desc())\
-        .limit(n)\
-        .all()
+def get_top_tasks(limit: int, token: str, db: Session = Depends(get_db)):
+    user = get_current_user(token, db, User)
+    return db.query(Task).filter(Task.user_id == user.id).order_by(Task.priority.desc()).limit(limit).all()
 
 @app.get("/")
 def root():
