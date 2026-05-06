@@ -1,6 +1,7 @@
 from locust import HttpUser, task, between
 import uuid
 class ApiUser(HttpUser):
+    host = "http://127.0.0.1:8001"
     def on_start(self):
         self.username = f"user_{uuid.uuid4().hex[:8]}"
         self.password = "1234"
