@@ -1,14 +1,26 @@
 from locust import HttpUser, task
 
-class MyUser(HttpUser):
+class UserFlow(HttpUser):
 
     @task
-    def test_root(self):
-        self.client.get("/")
-
-    @task
-    def test_register(self):
+    def full_flow(self):
         self.client.post("/register", params={
-            "name": "loaduser",
+            "name": "user",
             "password": "1234"
+        })
+
+        login = self.client.post("/login", params={
+            "name": "user",
+            "password": "1234"
+        }).json()
+
+        token = login["token"]
+
+        self.client.post("/add_tasks", params={
+            "title": "task1",
+            "token": token
+        })
+
+        self.client.get("/get_tasks", params={
+            "token": token
         })
