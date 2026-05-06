@@ -1,8 +1,9 @@
 # FastAPI Test Project
 
 ## Запуск проекта
+ВАЖНО НЕ ЗАПУТАТЬСЯ С ПОРТАМИ, ПОТЕРЯЛ ВРЕМЯ И НЕРВЫ.
 
-uvicorn main:app --reload
+uvicorn main:app --reload --port 8001
 
 -------------------------------
 
