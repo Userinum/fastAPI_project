@@ -4,3 +4,7 @@ sqlalchemy
 python-jose[cryptography]
 passlib[bcrypt]
 psycopg2-binary
+pytest
+httpx
+pytest-mock
+coverage
