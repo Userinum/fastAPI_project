@@ -1,4 +1,9 @@
 # FastAPI Test Project
+
+## Запуск проекта
+
+uvicorn main:app --reload
+
 -------------------------------
 
 ## Запуск тестов
@@ -13,14 +18,12 @@ coverage run -m pytest tests
 coverage html
 open htmlcov/index.html
 
+97%
+
 -------------------------------
 
 ## Locust
 
+cd tests
 locust
 
--------------------------------
-
-## Coverage result
-
-предварительно 97%
