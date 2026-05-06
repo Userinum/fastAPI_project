@@ -21,16 +21,12 @@ def db():
         yield db
     finally:
         db.close()
+        Base.metadata.drop_all(bind=engine)
 
 @pytest.fixture(scope="function")
 def client(db):
     def override_get_db():
-        try:
-            yield db
-        finally:
-            pass
-
+        yield db
     app.dependency_overrides[get_db] = override_get_db
-
     from fastapi.testclient import TestClient
     return TestClient(app)
