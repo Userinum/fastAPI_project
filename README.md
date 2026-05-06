@@ -22,7 +22,8 @@ coverage html
 open htmlcov/index.html
 
 97%
-index.html - я закинул в репо
+
+index.html - я закинул в репо в папку tests
 
 -------------------------------
 
