@@ -1,4 +1,4 @@
 def test_root(client):
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"ok": "yes"}е
+    assert response.json() == {"ok": "yes"}
