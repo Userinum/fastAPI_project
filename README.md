@@ -3,7 +3,7 @@
 
 ## Запуск тестов
 
-pytest tests
+python3 -m pytest tests
 
 -------------------------------
 
