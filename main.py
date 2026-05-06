@@ -27,7 +27,14 @@ def create_task(title: str, token: str, db: Session = Depends(get_db)):
     task = Task(title=title, description="", status ="todo", priority=1, user_id=user.id)
     db.add(task)
     db.commit()
-    return task
+    return {
+    "id": task.id,
+    "title": task.title,
+    "description": task.description,
+    "status": task.status,
+    "priority": task.priority,
+    "user_id": task.user_id
+}
 
 @app.get("/get_tasks")
 def get_tasks(token: str, db: Session = Depends(get_db)):
